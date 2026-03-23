@@ -1,16 +1,20 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout/Layout';
+import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
-import Heatmap from './pages/Heatmap';
-import Trends from './pages/Trends';
+import DelhiMap from './pages/DelhiMap';
+import Analytics from './pages/Analytics';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Alerts from './pages/Alerts';
 import AdminPanel from './pages/AdminPanel';
-import Tips from './pages/Tips';
+import HealthAdvisory from './pages/HealthAdvisory';
+import Globe from './pages/Globe';
+import Profile from './pages/Profile';
+import AuthSuccess from './pages/AuthSuccess';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import './App.css';
 
@@ -20,21 +24,53 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="heatmap" element={<Heatmap />} />
-              <Route path="trends" element={<Trends />} />
-              <Route path="tips" element={<Tips />} />
-              <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
-              
+            {/* Standalone pages — no Layout wrapper */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/auth-success" element={<AuthSuccess />} />
+
+            {/* All other pages use Layout (navbar, sidebar, footer) */}
+            <Route element={<Layout />}>
+              <Route path="dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="heatmap" element={
+                <ProtectedRoute>
+                  <DelhiMap />
+                </ProtectedRoute>
+              } />
+              <Route path="analytics" element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              } />
+              <Route path="advisory" element={
+                <ProtectedRoute>
+                  <HealthAdvisory />
+                </ProtectedRoute>
+              } />
+              <Route path="globe" element={
+                <ProtectedRoute>
+                  <Globe />
+                </ProtectedRoute>
+              } />
+
               {/* Protected Routes */}
               <Route path="alerts" element={
                 <ProtectedRoute>
                   <Alerts />
                 </ProtectedRoute>
               } />
-              
+
+              <Route path="profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+
               <Route path="admin" element={
                 <ProtectedRoute adminOnly={true}>
                   <AdminPanel />

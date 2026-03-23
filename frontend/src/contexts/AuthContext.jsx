@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import API_BASE_URL from '../api';
 
 const AuthContext = createContext();
 
@@ -28,36 +29,43 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       
-      if (!response.ok) throw new Error('Login failed');
-      
       const data = await response.json();
+      
+      if (!response.ok) {
+        return { success: false, message: data.error || 'Login failed' };
+      }
+      
       localStorage.setItem('token', data.token);
       setUser(jwtDecode(data.token));
       return { success: true };
     } catch (error) {
-      return { success: false, message: error.message };
+      return { success: false, message: 'Network error. Is the server running?' };
     }
   };
 
   const register = async (userData) => {
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       });
       
-      if (!response.ok) throw new Error('Registration failed');
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return { success: false, message: data.error || 'Registration failed' };
+      }
       
       return { success: true };
     } catch (error) {
-      return { success: false, message: error.message };
+      return { success: false, message: 'Network error. Is the server running?' };
     }
   };
 
@@ -67,7 +75,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (updates) => {
-    setUser(prev => ({ ...prev, ...updates }));
+    setUser(prev => prev ? { ...prev, ...updates } : updates);
+  };
+
+  const setUserFromToken = (token) => {
+    localStorage.setItem('token', token);
+    const decoded = jwtDecode(token);
+    setUser(decoded);
   };
 
   return (
@@ -78,6 +92,7 @@ export const AuthProvider = ({ children }) => {
       register, 
       logout, 
       updateUser,
+      setUserFromToken,
       isAdmin: user?.role === 'admin' 
     }}>
       {children}

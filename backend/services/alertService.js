@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const User = require('../models/User');
-const AQIData = require('../models/AQIData');
+const Aqi = require('../models/Aqi');
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
@@ -107,7 +107,7 @@ const checkAndSendAlerts = async () => {
       ];
       
       for (const district of districtsToCheck) {
-        const latestAQI = await AQIData.findOne({ district })
+        const latestAQI = await Aqi.findOne({ district })
           .sort({ timestamp: -1 })
           .limit(1);
         

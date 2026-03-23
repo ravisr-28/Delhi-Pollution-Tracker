@@ -1,21 +1,7 @@
 const cron = require('node-cron');
 const axios = require('axios');
-const AQIData = require('../models/AQIData');
-
-// Delhi districts with their coordinates
-const delhiDistricts = [
-  { name: 'Central Delhi', lat: 28.6358, lon: 77.2245 },
-  { name: 'North Delhi', lat: 28.7041, lon: 77.1025 },
-  { name: 'South Delhi', lat: 28.5355, lon: 77.2500 },
-  { name: 'East Delhi', lat: 28.6692, lon: 77.3154 },
-  { name: 'West Delhi', lat: 28.6562, lon: 77.1000 },
-  { name: 'New Delhi', lat: 28.6139, lon: 77.2090 },
-  { name: 'North East Delhi', lat: 28.7154, lon: 77.2842 },
-  { name: 'North West Delhi', lat: 28.7272, lon: 77.0688 },
-  { name: 'South East Delhi', lat: 28.5562, lon: 77.2760 },
-  { name: 'South West Delhi', lat: 28.5820, lon: 77.0707 },
-  { name: 'Shahdara', lat: 28.6714, lon: 77.2862 }
-];
+const Aqi = require('../models/Aqi');
+const { delhiDistricts, worldCities } = require('../config/locations');
 
 // Function to get AQI category and color
 const getAQICategory = (aqi) => {
@@ -29,10 +15,7 @@ const getAQICategory = (aqi) => {
 
 // Convert OpenWeatherMap AQI (1-5) to US AQI (0-500)
 const convertToUSAQI = (components) => {
-  // PM2.5 is the most important pollutant for AQI calculation
   const pm25 = components.pm2_5;
-  
-  // Breakpoints for PM2.5 (µg/m³) to AQI conversion
   const breakpoints = [
     { cLow: 0, cHigh: 12.0, aqiLow: 0, aqiHigh: 50 },
     { cLow: 12.1, cHigh: 35.4, aqiLow: 51, aqiHigh: 100 },
@@ -49,30 +32,28 @@ const convertToUSAQI = (components) => {
       break;
     }
   }
-
   return Math.round(aqi);
 };
 
-// Fetch AQI data for a district
-const fetchDistrictAQI = async (district) => {
+// Fetch AQI data for a location
+const fetchLocationAQI = async (loc) => {
   try {
-    const response = await axios.get('http://api.openweathermap.org/data/2.5/air_pollution', {
+    const response = await axios.get('https://api.openweathermap.org/data/2.5/air_pollution', {
       params: {
-        lat: district.lat,
-        lon: district.lon,
+        lat: loc.lat,
+        lon: loc.lon,
         appid: process.env.OPENWEATHER_API_KEY
-      }
+      },
+      timeout: 10000
     });
 
     const data = response.data.list[0];
     const components = data.components;
-    
-    // Convert to US AQI
     const aqi = convertToUSAQI(components);
     const { category, color } = getAQICategory(aqi);
 
     return {
-      district: district.name,
+      district: loc.name,
       aqi: aqi,
       category: category,
       color: color,
@@ -87,7 +68,7 @@ const fetchDistrictAQI = async (district) => {
       timestamp: new Date()
     };
   } catch (error) {
-    console.error(`Error fetching AQI for ${district.name}:`, error.message);
+    console.error(`Error fetching AQI for ${loc.name}:`, error.message);
     return null;
   }
 };
@@ -95,34 +76,43 @@ const fetchDistrictAQI = async (district) => {
 // Main function to fetch and store AQI data
 const fetchAndStoreAQI = async () => {
   try {
-    console.log('Fetching AQI data for all districts...');
+    const allLocations = [...delhiDistricts];
+    console.log(`Starting Delhi AQI sync for ${allLocations.length} locations...`);
     
-    const promises = delhiDistricts.map(district => fetchDistrictAQI(district));
-    const results = await Promise.all(promises);
+    // Batch processing to respect API limits
+    const batchSize = 5;
+    const allResults = [];
     
-    // Filter out null results and save to database
-    const validResults = results.filter(result => result !== null);
+    for (let i = 0; i < allLocations.length; i += batchSize) {
+      const batch = allLocations.slice(i, i + batchSize);
+      const promises = batch.map(loc => fetchLocationAQI(loc));
+      const results = await Promise.all(promises);
+      allResults.push(...results.filter(r => r !== null));
+      
+      // Minor throttle between batches
+      if (i + batchSize < allLocations.length) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+    }
     
-    if (validResults.length > 0) {
-      await AQIData.insertMany(validResults);
-      console.log(`✅ Successfully stored AQI data for ${validResults.length} districts`);
-    } else {
-      console.log('❌ No valid AQI data to store');
+    if (allResults.length > 0) {
+      await Aqi.insertMany(allResults);
+      console.log(`✅ Successfully stored AQI snapshots for ${allResults.length} locations`);
     }
   } catch (error) {
-    console.error('Error fetching AQI data:', error);
+    console.error('Error during Delhi AQI sync:', error);
   }
 };
 
 // Schedule to run every hour
 cron.schedule('0 * * * *', () => {
-  console.log('Running scheduled AQI fetch...');
+  console.log('Running scheduled Delhi AQI fetch...');
   fetchAndStoreAQI();
 });
 
 // Run immediately on startup
 fetchAndStoreAQI();
 
-console.log('AQI fetch scheduler started (runs hourly)');
+console.log('Delhi AQI fetch scheduler active (hourly)');
 
 module.exports = { fetchAndStoreAQI };

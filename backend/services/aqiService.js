@@ -1,5 +1,5 @@
 const axios = require('axios');
-const AQIData = require('../models/AQIData');
+const Aqi = require('../models/Aqi');
 
 // Delhi district coordinates (approximate central points)
 const delhiDistricts = [
@@ -74,7 +74,7 @@ const fetchAndStoreAQI = async () => {
     for (const district of delhiDistricts) {
       const aqiData = await fetchAQIFromIQAir(district.lat, district.lng);
       
-      const newAQIData = new AQIData({
+      const newAQIData = new Aqi({
         district: district.name,
         aqi: aqiData.aqi,
         category: getAQICategory(aqiData.aqi),

@@ -34,4 +34,4 @@ const aqiDataSchema = new mongoose.Schema({
 // Index for efficient querying
 aqiDataSchema.index({ district: 1, timestamp: -1 });
 
-module.exports = mongoose.model('AQIData', aqiDataSchema);
+module.exports = mongoose.model('Aqi', aqiDataSchema);

@@ -1,13 +1,21 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // Generate JWT Token
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: '30d'
-  });
+const generateToken = (user) => {
+  return jwt.sign(
+    { 
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role || 'user'
+    }, 
+    process.env.JWT_SECRET, 
+    { expiresIn: '30d' }
+  );
 };
 
 // @route   POST /api/auth/register
@@ -46,7 +54,7 @@ router.post('/register', async (req, res) => {
     });
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.status(201).json({
       token,
@@ -98,7 +106,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.json({
       token,
@@ -146,5 +154,67 @@ router.get('/me', async (req, res) => {
     res.status(401).json({ error: 'Invalid token' });
   }
 });
+
+// @route   PUT /api/auth/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { name, emailAlerts } = req.body;
+    
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (emailAlerts !== undefined) updates.emailAlerts = emailAlerts;
+
+    const user = await User.findByIdAndUpdate(decoded.id, updates, { new: true }).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// @route   GET /api/auth/google
+// @desc    Auth with Google
+// @access  Public
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// @route   GET /api/auth/google/callback
+// @desc    Google auth callback
+// @access  Public
+router.get('/google/callback', 
+  passport.authenticate('google', { failureRedirect: 'http://localhost:3000/login', session: false }),
+  (req, res) => {
+    const token = generateToken(req.user);
+    res.redirect(`http://localhost:3000/auth-success?token=${token}`);
+  }
+);
+
+// @route   GET /api/auth/github
+// @desc    Auth with GitHub
+// @access  Public
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+// @route   GET /api/auth/github/callback
+// @desc    GitHub auth callback
+// @access  Public
+router.get('/github/callback', 
+  passport.authenticate('github', { failureRedirect: 'http://localhost:3000/login', session: false }),
+  (req, res) => {
+    const token = generateToken(req.user);
+    res.redirect(`http://localhost:3000/auth-success?token=${token}`);
+  }
+);
 
 module.exports = router;

@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "axios": "^1.13.6",
+    "framer-motion": "^12.38.0",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.563.0",
@@ -20,7 +24,8 @@
     "react-map-gl": "^8.1.0",
     "react-router-dom": "^7.13.0",
     "recharts": "^3.7.0",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

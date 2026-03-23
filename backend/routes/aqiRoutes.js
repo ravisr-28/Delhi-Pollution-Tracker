@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const AQIData = require('../models/AQIData');
+const AQIData = require('../models/Aqi');
+const { delhiDistricts, worldCities } = require('../config/locations');
 
 // @route   GET /api/aqi/latest
 // @desc    Get latest AQI data for all districts
@@ -19,6 +20,7 @@ router.get('/latest', async (req, res) => {
           category: { $first: '$category' },
           color: { $first: '$color' },
           pollutants: { $first: '$pollutants' },
+          weather: { $first: '$weather' },
           timestamp: { $first: '$timestamp' }
         }
       },
@@ -30,6 +32,7 @@ router.get('/latest', async (req, res) => {
           category: 1,
           color: 1,
           pollutants: 1,
+          weather: 1,
           timestamp: 1
         }
       },
