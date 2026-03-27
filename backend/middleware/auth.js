@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
-const auth = async (req, res, next) => {
+export const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -24,18 +24,16 @@ const auth = async (req, res, next) => {
   }
 };
 
-const adminAuth = async (req, res, next) => {
-  try {
-    await auth(req, res, () => {});
-    
-    if (!req.user.isAdmin) {
+export const adminAuth = async (req, res, next) => {
+  auth(req, res, (err) => {
+    if (err) {
+      return res.status(403).json({ error: 'Admin authentication failed' });
+    }
+
+    if (!req.user || !req.user.isAdmin) {
       return res.status(403).json({ error: 'Admin access required' });
     }
-    
-    next();
-  } catch (error) {
-    res.status(403).json({ error: 'Admin authentication failed' });
-  }
-};
 
-module.exports = { auth, adminAuth };
+    next();
+  });
+};

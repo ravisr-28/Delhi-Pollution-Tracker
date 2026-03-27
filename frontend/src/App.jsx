@@ -14,7 +14,6 @@ import AdminPanel from './pages/AdminPanel';
 import HealthAdvisory from './pages/HealthAdvisory';
 import Globe from './pages/Globe';
 import Profile from './pages/Profile';
-import AuthSuccess from './pages/AuthSuccess';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import './App.css';
 
@@ -28,7 +27,6 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/auth-success" element={<AuthSuccess />} />
 
             {/* All other pages use Layout (navbar, sidebar, footer) */}
             <Route element={<Layout />}>

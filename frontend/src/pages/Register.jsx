@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { UserPlus, User, Mail, Phone, Lock, Shield } from 'lucide-react';
-import SocialLogin from '../components/Auth/SocialLogin';
+import { UserPlus, User, Mail, Lock, Shield } from 'lucide-react';
 
 const Register = () => {
   const { theme } = useTheme();
@@ -14,8 +13,6 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    phone: '',
     acceptTerms: false,
   });
   
@@ -42,14 +39,6 @@ const Register = () => {
       newErrors.password = 'Password must be at least 6 characters';
     }
     
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    if (formData.phone && !/^[0-9+\-\s()]*$/.test(formData.phone)) {
-      newErrors.phone = 'Phone number is invalid';
-    }
-    
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = 'You must accept the terms and conditions';
     }
@@ -70,7 +59,6 @@ const Register = () => {
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      phone: formData.phone || undefined,
     };
     
     const result = await register(userData);
@@ -181,36 +169,10 @@ const Register = () => {
               )}
             </div>
 
-            {/* Phone Input */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
-                <Phone className="w-4 h-4 mr-2" />
-                Phone Number (Optional)
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                className={`appearance-none relative block w-full px-3 py-3 border rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 text-sm ${
-                  errors.phone 
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                    : theme === 'dark'
-                      ? 'border-gray-700 bg-gray-900 text-white'
-                      : 'border-gray-300 bg-white text-gray-900'
-                }`}
-                placeholder="+91 9876543210"
-              />
-              {errors.phone && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone}</p>
-              )}
-            </div>
-
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+                <Lock className="w-4 h-4 mr-2" />
                 Password
               </label>
               <input
@@ -235,32 +197,6 @@ const Register = () => {
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Must be at least 6 characters long
               </p>
-            </div>
-
-            {/* Confirm Password Input */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`appearance-none relative block w-full px-3 py-3 border rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 text-sm ${
-                  errors.confirmPassword 
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                    : theme === 'dark'
-                      ? 'border-gray-700 bg-gray-900 text-white'
-                      : 'border-gray-300 bg-white text-gray-900'
-                }`}
-                placeholder="Re-enter your password"
-              />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
-              )}
             </div>
 
             {/* Terms Checkbox */}
@@ -305,8 +241,6 @@ const Register = () => {
             </div>
           </form>
 
-          {/* Social Registration */}
-          <SocialLogin />
 
           {/* Login Link */}
           <div className="mt-6 text-center">
@@ -334,7 +268,7 @@ const Register = () => {
               <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Real-time pollution alerts via email/SMS</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Real-time pollution alerts via email</span>
             </li>
             <li className="flex items-center">
               <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

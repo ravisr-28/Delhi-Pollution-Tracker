@@ -6,7 +6,6 @@ import {
   LogIn, Mail, Lock, Shield, Loader2, Globe, Eye, EyeOff,
   ArrowLeft, Fingerprint, CheckCircle2
 } from 'lucide-react';
-import SocialLogin from '../components/Auth/SocialLogin';
 
 const Login = () => {
   const { login } = useAuth();
@@ -253,8 +252,6 @@ const Login = () => {
             </motion.button>
           </form>
 
-          {/* Social Login */}
-          <SocialLogin />
 
           {/* Sign Up */}
           <p className="mt-8 text-center text-sm text-gray-600">

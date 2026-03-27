@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 // Create transporter
 const createTransporter = () => {
@@ -47,7 +47,7 @@ const sendEmail = async (to, subject, html) => {
 
 // Send verification email
 const sendVerificationEmail = async (email, token) => {
-  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -70,7 +70,7 @@ const sendVerificationEmail = async (email, token) => {
 
 // Send password reset email
 const sendPasswordResetEmail = async (email, token) => {
-  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -92,8 +92,4 @@ const sendPasswordResetEmail = async (email, token) => {
   return sendEmail(email, 'Reset Your Password - Delhi Pollution Tracker', html);
 };
 
-module.exports = {
-  sendEmail,
-  sendVerificationEmail,
-  sendPasswordResetEmail
-};
+export { sendEmail, sendVerificationEmail, sendPasswordResetEmail };

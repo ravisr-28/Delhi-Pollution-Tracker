@@ -1,4 +1,4 @@
-const delhiDistricts = [
+export const delhiDistricts = [
   { name: 'Central Delhi', lat: 28.6358, lon: 77.2245, type: 'district' },
   { name: 'North Delhi', lat: 28.7041, lon: 77.1025, type: 'district' },
   { name: 'South Delhi', lat: 28.5355, lon: 77.2500, type: 'district' },
@@ -12,7 +12,7 @@ const delhiDistricts = [
   { name: 'Shahdara', lat: 28.6714, lon: 77.2862, type: 'district' }
 ];
 
-const worldCities = [
+export const worldCities = [
   // Asia
   { name: 'Beijing', country: 'CN', lat: 39.91, lon: 116.40, type: 'city' },
   { name: 'Tokyo', country: 'JP', lat: 35.68, lon: 139.69, type: 'city' },
@@ -43,5 +43,3 @@ const worldCities = [
   { name: 'Johannesburg', country: 'ZA', lat: -26.20, lon: 28.05, type: 'city' },
   { name: 'Sydney', country: 'AU', lat: -33.87, lon: 151.21, type: 'city' }
 ];
-
-module.exports = { delhiDistricts, worldCities };

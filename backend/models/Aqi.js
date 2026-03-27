@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const aqiDataSchema = new mongoose.Schema({
   district: {
@@ -25,6 +25,10 @@ const aqiDataSchema = new mongoose.Schema({
     so2: Number,
     co: Number
   },
+  coordinates: {
+    lat: Number,
+    lon: Number
+  },
   timestamp: {
     type: Date,
     default: Date.now
@@ -34,4 +38,4 @@ const aqiDataSchema = new mongoose.Schema({
 // Index for efficient querying
 aqiDataSchema.index({ district: 1, timestamp: -1 });
 
-module.exports = mongoose.model('Aqi', aqiDataSchema);
+export default mongoose.model('Aqi', aqiDataSchema);

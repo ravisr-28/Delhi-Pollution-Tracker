@@ -314,7 +314,7 @@ export default function Home() {
                 <MessageSquare className="w-4 h-4 text-purple-400" />
                 <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">Contact</span>
               </div>
-              <h2 className="text-4xl md:text-5 font-black text-white mb-4 tracking-tight">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
                 Get in
                 <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent"> Touch</span>
               </h2>
@@ -361,6 +361,7 @@ export default function Home() {
                 transition={{ duration: 0.6 }}
               >
                 <form
+                  onSubmit={(e) => e.preventDefault()}
                   className="p-6 md:p-8 rounded-3xl border border-white/[0.06] backdrop-blur-xl"
                   style={{ background: 'rgba(15,23,42,0.5)' }}
                 >

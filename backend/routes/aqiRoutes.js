@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import AQIData from '../models/Aqi.js';
+import { delhiDistricts, worldCities } from '../config/locations.js';
+
 const router = express.Router();
-const AQIData = require('../models/Aqi');
-const { delhiDistricts, worldCities } = require('../config/locations');
 
 // @route   GET /api/aqi/latest
 // @desc    Get latest AQI data for all districts
@@ -226,4 +227,38 @@ router.get('/worst', async (req, res) => {
   }
 });
 
-module.exports = router;
+// @route   GET /api/aqi/global
+// @desc    Get global AQI summary stats for homepage
+// @access  Public
+router.get('/global', async (req, res) => {
+  try {
+    const latestData = await AQIData.aggregate([
+      { $sort: { timestamp: -1 } },
+      {
+        $group: {
+          _id: '$district',
+          aqi: { $first: '$aqi' },
+          district: { $first: '$district' }
+        }
+      }
+    ]);
+
+    if (latestData.length === 0) {
+      return res.json({ total: 0, avg: 0, max: 0, min: 0, worstCity: 'N/A', bestCity: 'N/A' });
+    }
+
+    const aqiValues = latestData.map(d => d.aqi);
+    const avg = Math.round(aqiValues.reduce((a, b) => a + b, 0) / aqiValues.length);
+    const max = Math.max(...aqiValues);
+    const min = Math.min(...aqiValues);
+    const worstCity = latestData.find(d => d.aqi === max)?._id || 'N/A';
+    const bestCity = latestData.find(d => d.aqi === min)?._id || 'N/A';
+
+    res.json({ total: latestData.length, avg, max, min, worstCity, bestCity });
+  } catch (error) {
+    console.error('Error fetching global AQI:', error);
+    res.status(500).json({ error: 'Failed to fetch global AQI data' });
+  }
+});
+
+export default router;

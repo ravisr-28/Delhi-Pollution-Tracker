@@ -1,7 +1,7 @@
-const cron = require('node-cron');
-const axios = require('axios');
-const Aqi = require('../models/Aqi');
-const { delhiDistricts, worldCities } = require('../config/locations');
+import cron from 'node-cron';
+import axios from 'axios';
+import Aqi from '../models/Aqi.js';
+import { delhiDistricts } from '../config/locations.js';
 
 // Function to get AQI category and color
 const getAQICategory = (aqi) => {
@@ -26,7 +26,7 @@ const convertToUSAQI = (components) => {
   ];
 
   let aqi = 0;
-  for (let bp of breakpoints) {
+  for (const bp of breakpoints) {
     if (pm25 >= bp.cLow && pm25 <= bp.cHigh) {
       aqi = ((bp.aqiHigh - bp.aqiLow) / (bp.cHigh - bp.cLow)) * (pm25 - bp.cLow) + bp.aqiLow;
       break;
@@ -115,4 +115,4 @@ fetchAndStoreAQI();
 
 console.log('Delhi AQI fetch scheduler active (hourly)');
 
-module.exports = { fetchAndStoreAQI };
+export { fetchAndStoreAQI };

@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { LogIn, Mail, Lock, X, Shield, Loader2, AlertCircle } from 'lucide-react';
-import SocialLogin from './SocialLogin';
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const { theme } = useTheme();
@@ -134,8 +133,6 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 {loading ? 'Authorizing...' : 'Establish Connection'}
               </button>
             </form>
-
-            <SocialLogin />
 
             <div className="mt-8 text-center bg-blue-500/5 p-4 rounded-2xl border border-blue-500/10">
               <p className="text-xs font-medium opacity-60">

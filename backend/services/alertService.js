@@ -1,6 +1,6 @@
-const nodemailer = require('nodemailer');
-const User = require('../models/User');
-const Aqi = require('../models/Aqi');
+import nodemailer from 'nodemailer';
+import User from '../models/User.js';
+import Aqi from '../models/Aqi.js';
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
@@ -97,10 +97,12 @@ const checkAndSendAlerts = async () => {
     const users = await User.find({ 'alertPreferences.enabled': true });
     
     for (const user of users) {
-      const { threshold, notificationMethods, districts } = user.alertPreferences;
+      const { threshold, areas } = user.alertPreferences;
+      const shouldEmailAlert = user.alertPreferences.email;
+      const shouldPushAlert = user.alertPreferences.push;
       
-      // If no specific districts, check all
-      const districtsToCheck = districts.length > 0 ? districts : [
+      // If no specific areas, check all
+      const districtsToCheck = areas && areas.length > 0 ? areas : [
         'Central Delhi', 'East Delhi', 'New Delhi', 'North Delhi',
         'North East Delhi', 'North West Delhi', 'Shahdara',
         'South Delhi', 'South East Delhi', 'South West Delhi', 'West Delhi'
@@ -112,13 +114,12 @@ const checkAndSendAlerts = async () => {
           .limit(1);
         
         if (latestAQI && latestAQI.aqi >= threshold) {
-          if (notificationMethods.email) {
+          if (shouldEmailAlert) {
             await sendEmailAlert(user, district, latestAQI.aqi, latestAQI.category);
           }
           
-          // SMS functionality would go here
-          if (notificationMethods.sms && user.phone) {
-            console.log(`SMS alert would be sent to ${user.phone}`);
+          if (shouldPushAlert) {
+            console.log(`Push notification would be sent to ${user.name}`);
           }
         }
       }
@@ -130,7 +131,4 @@ const checkAndSendAlerts = async () => {
   }
 };
 
-module.exports = {
-  checkAndSendAlerts,
-  sendEmailAlert
-};
+export { checkAndSendAlerts, sendEmailAlert };
