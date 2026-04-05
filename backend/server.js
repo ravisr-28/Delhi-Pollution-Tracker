@@ -3,7 +3,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 
-import authRoutes from './routes/authRoutes.js';
 import aqiRoutes from './routes/aqiRoutes.js';
 
 const app = express();
@@ -43,7 +42,6 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
 app.use('/api/aqi', aqiRoutes);
 
 // Test route

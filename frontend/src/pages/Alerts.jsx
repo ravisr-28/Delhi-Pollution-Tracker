@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from '../contexts/AuthContext';
 import { Bell, AlertTriangle, Settings, History } from 'lucide-react';
 
 const Alerts = () => {
   const { theme } = useTheme();
-  const { user } = useAuth();
   const [thresholds, setThresholds] = useState({
     aqi: 150,
     pm25: 75,
